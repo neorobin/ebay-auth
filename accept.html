@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>eBay 授权成功</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0; padding: 32px 20px;
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background: #f5f7fb; color: #1f2937;
+  }
+  .card {
+    max-width: 720px; margin: 0 auto; background: #fff;
+    border-radius: 14px; padding: 28px 26px;
+    box-shadow: 0 8px 30px rgba(31, 56, 100, .12);
+  }
+  h1 { font-size: 22px; margin: 0 0 8px; color: #1f3864; }
+  p { line-height: 1.75; margin: 10px 0; }
+  .code {
+    margin: 16px 0; padding: 14px;
+    background: #f2f4f8; border: 1px solid #d7deea; border-radius: 10px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px; line-height: 1.6;
+    word-break: break-all; max-height: 220px; overflow: auto;
+  }
+  button {
+    display: inline-block; width: 100%; padding: 14px 16px;
+    font-size: 16px; font-weight: 600; color: #fff;
+    background: #2e5496; border: 0; border-radius: 10px; cursor: pointer;
+  }
+  button:active { background: #1f3864; }
+  .hint { font-size: 13px; color: #6b7280; }
+  .warn {
+    margin-top: 16px; padding: 12px 14px; border-radius: 10px;
+    background: #fff7e6; border-left: 4px solid #d97706; font-size: 14px;
+  }
+  .empty { display: none; }
+  .copy-ok { color: #15803d; font-size: 13px; margin-left: 8px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>授权成功</h1>
+  <p>请把下面这串代码复制下来，<strong>在 5 分钟内</strong>发给开发者。</p>
+
+  <div id="codeBox" class="code"></div>
+  <p id="copyOk" class="copy-ok"></p>
+
+  <button id="copyBtn" type="button">复制代码</button>
+  <p class="hint">如果按钮没反应，请长按上面的代码手动复制。</p>
+
+  <div id="emptyBox" class="empty">
+    <div class="warn">
+      没有收到授权码。请回到开发者发你的授权链接，重新点一次 <strong>Agree and Continue</strong>。
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var search = window.location.search || '';
+  var match = /[?&]code=([^&]*)/.exec(search);
+  var code = match ? decodeURIComponent(match[1]) : '';
+
+  var box = document.getElementById('codeBox');
+  var btn = document.getElementById('copyBtn');
+  var ok = document.getElementById('copyOk');
+  var empty = document.getElementById('emptyBox');
+
+  if (!code) {
+    box.style.display = 'none';
+    btn.style.display = 'none';
+    empty.className = '';
+    return;
+  }
+
+  box.textContent = code;
+
+  function done() {
+    ok.textContent = '已复制，请粘贴给开发者。';
+    setTimeout(function () { ok.textContent = ''; }, 4000);
+  }
+
+  btn.addEventListener('click', function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done, fallback);
+    } else {
+      fallback();
+    }
+  });
+
+  function fallback() {
+    var range = document.createRange();
+    range.selectNodeContents(box);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    try { document.execCommand('copy'); done(); } catch (e) { /* 手动复制 */ }
+  }
+})();
+</script>
+</body>
+</html>
